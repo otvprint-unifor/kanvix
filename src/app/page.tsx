@@ -11,6 +11,8 @@ import { TaskCard } from "../components/task/TaskCard";
 import { AddTaskModal } from "../components/task/AddTaskModal";
 import { StatsCard } from "../components/dashboard/StatsCard";
 
+import { Toaster, toast } from "sonner";
+
 type TaskStatus = "todo" | "progress" | "done";
 
 type TaskPriority =
@@ -122,49 +124,55 @@ export default function Home() {
   }, [tasks]);
 
   function handleAddTask(
-    title: string,
-    description: string,
-    priority: TaskPriority
-  ) {
-    const newTask: Task = {
-      id: Date.now(),
-      title,
-      description,
-      status: "todo",
-      priority,
-    };
+  title: string,
+  description: string,
+  priority: TaskPriority
+) {
+  const newTask: Task = {
+    id: Date.now(),
+    title,
+    description,
+    status: "todo",
+    priority,
+  };
 
-    setTasks((prev) => [...prev, newTask]);
-  }
+  setTasks((prev) => [...prev, newTask]);
+
+  toast.success("Tarefa criada com sucesso!");
+}
 
   function handleEditTask(
-    title: string,
-    description: string,
-    priority: TaskPriority
-  ) {
-    if (!editingTask) return;
+  title: string,
+  description: string,
+  priority: TaskPriority
+) {
+  if (!editingTask) return;
 
-    setTasks((prev) =>
-      prev.map((task) =>
-        task.id === editingTask.id
-          ? {
-              ...task,
-              title,
-              description,
-              priority,
-            }
-          : task
-      )
-    );
+  setTasks((prev) =>
+    prev.map((task) =>
+      task.id === editingTask.id
+        ? {
+            ...task,
+            title,
+            description,
+            priority,
+          }
+        : task
+    )
+  );
 
-    setEditingTask(null);
-  }
+  toast.success("Tarefa atualizada!");
+
+  setEditingTask(null);
+}
 
   function deleteTask(taskId: number) {
-    setTasks((prev) =>
-      prev.filter((task) => task.id !== taskId)
-    );
-  }
+  setTasks((prev) =>
+    prev.filter((task) => task.id !== taskId)
+  );
+
+  toast.error("Tarefa removida!");
+}
 
   function handleDragEnd(event: DragEndEvent) {
     const { active, over } = event;
@@ -184,6 +192,8 @@ export default function Home() {
           : task
       )
     );
+
+    toast.success("Tarefa movida");
   }
 
   return (
@@ -353,6 +363,8 @@ export default function Home() {
         }
         isEditing
       />
+
+      <Toaster richColors position="top-right" />
     </main>
   );
 }
