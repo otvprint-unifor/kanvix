@@ -9,6 +9,7 @@ import { Topbar } from "../components/layout/Topbar";
 import { BoardColumn } from "../components/board/BoardColumn";
 import { TaskCard } from "../components/task/TaskCard";
 import { AddTaskModal } from "../components/task/AddTaskModal";
+import { StatsCard } from "../components/dashboard/StatsCard";
 
 type TaskStatus = "todo" | "progress" | "done";
 
@@ -44,8 +45,33 @@ const initialTasks: Task[] = [
 
 export default function Home() {
   const [tasks, setTasks] = useState<Task[]>([]);
+
   const [isModalOpen, setIsModalOpen] =
     useState(false);
+
+  const [editingTask, setEditingTask] =
+    useState<Task | null>(null);
+
+  const totalTasks = tasks.length;
+
+  const todoTasks = tasks.filter(
+    (task) => task.status === "todo"
+  ).length;
+
+  const progressTasks = tasks.filter(
+    (task) => task.status === "progress"
+  ).length;
+
+  const doneTasks = tasks.filter(
+    (task) => task.status === "done"
+  ).length;
+
+  const productivity =
+    totalTasks > 0
+      ? Math.round(
+          (doneTasks / totalTasks) * 100
+        )
+      : 0;
 
   useEffect(() => {
     const storedTasks =
@@ -77,6 +103,27 @@ export default function Home() {
     };
 
     setTasks((prev) => [...prev, newTask]);
+  }
+
+  function handleEditTask(
+    title: string,
+    description: string
+  ) {
+    if (!editingTask) return;
+
+    setTasks((prev) =>
+      prev.map((task) =>
+        task.id === editingTask.id
+          ? {
+              ...task,
+              title,
+              description,
+            }
+          : task
+      )
+    );
+
+    setEditingTask(null);
   }
 
   function deleteTask(taskId: number) {
@@ -114,6 +161,28 @@ export default function Home() {
           onAddTask={() => setIsModalOpen(true)}
         />
 
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+          <StatsCard
+            title="Total de tarefas"
+            value={totalTasks}
+          />
+
+          <StatsCard
+            title="A Fazer"
+            value={todoTasks}
+          />
+
+          <StatsCard
+            title="Em progresso"
+            value={progressTasks}
+          />
+
+          <StatsCard
+            title="Produtividade"
+            value={`${productivity}%`}
+          />
+        </div>
+
         <DndContext onDragEnd={handleDragEnd}>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <BoardColumn
@@ -130,6 +199,9 @@ export default function Home() {
                     id={task.id}
                     title={task.title}
                     description={task.description}
+                    onEdit={() =>
+                      setEditingTask(task)
+                    }
                     onDelete={() =>
                       deleteTask(task.id)
                     }
@@ -152,6 +224,9 @@ export default function Home() {
                     id={task.id}
                     title={task.title}
                     description={task.description}
+                    onEdit={() =>
+                      setEditingTask(task)
+                    }
                     onDelete={() =>
                       deleteTask(task.id)
                     }
@@ -173,6 +248,9 @@ export default function Home() {
                     id={task.id}
                     title={task.title}
                     description={task.description}
+                    onEdit={() =>
+                      setEditingTask(task)
+                    }
                     onDelete={() =>
                       deleteTask(task.id)
                     }
@@ -187,6 +265,17 @@ export default function Home() {
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         onAdd={handleAddTask}
+      />
+
+      <AddTaskModal
+        isOpen={!!editingTask}
+        onClose={() => setEditingTask(null)}
+        onAdd={handleEditTask}
+        initialTitle={editingTask?.title}
+        initialDescription={
+          editingTask?.description
+        }
+        isEditing
       />
     </main>
   );

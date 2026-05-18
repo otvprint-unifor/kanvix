@@ -7,6 +7,7 @@ type TaskCardProps = {
   title: string;
   description: string;
   onDelete?: () => void;
+  onEdit?: () => void;
 };
 
 export function TaskCard({
@@ -14,6 +15,7 @@ export function TaskCard({
   title,
   description,
   onDelete,
+  onEdit,
 }: TaskCardProps) {
   const {
     attributes,
@@ -34,28 +36,43 @@ export function TaskCard({
     <div
       ref={setNodeRef}
       style={style}
-      {...listeners}
-      {...attributes}
-      className="bg-slate-800 p-4 rounded-lg cursor-grab active:cursor-grabbing focus:outline-none focus:ring-2 focus:ring-blue-500"
+      className="bg-slate-800 p-4 rounded-lg"
     >
-      <h4 className="font-medium">
-        {title}
-      </h4>
+      <div
+        {...listeners}
+        {...attributes}
+        className="cursor-grab active:cursor-grabbing"
+      >
+        <h4 className="font-medium">
+          {title}
+        </h4>
 
-      <p className="text-sm text-slate-300 mt-2">
-        {description}
-      </p>
+        <p className="text-sm text-slate-300 mt-2">
+          {description}
+        </p>
+      </div>
 
-      {onDelete && (
-        <button
-          onClick={onDelete}
-          aria-label={`Excluir tarefa ${title}`}
-          title="Excluir tarefa"
-          className="mt-4 text-sm bg-red-600 hover:bg-red-500 px-3 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-400 transition"
-        >
-          Excluir
-        </button>
-      )}
+      <div className="flex gap-2 mt-4">
+        {onEdit && (
+          <button
+            type="button"
+            onClick={onEdit}
+            className="text-sm bg-yellow-600 hover:bg-yellow-500 px-3 py-2 rounded-lg"
+          >
+            Editar
+          </button>
+        )}
+
+        {onDelete && (
+          <button
+            type="button"
+            onClick={onDelete}
+            className="text-sm bg-red-600 hover:bg-red-500 px-3 py-2 rounded-lg"
+          >
+            Excluir
+          </button>
+        )}
+      </div>
     </div>
   );
 }
