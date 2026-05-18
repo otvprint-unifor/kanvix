@@ -61,6 +61,11 @@ export default function Home() {
   const [editingTask, setEditingTask] =
     useState<Task | null>(null);
 
+  const [search, setSearch] = useState("");
+
+  const [priorityFilter, setPriorityFilter] =
+    useState("all");
+
   const totalTasks = tasks.length;
 
   const todoTasks = tasks.filter(
@@ -81,6 +86,22 @@ export default function Home() {
           (doneTasks / totalTasks) * 100
         )
       : 0;
+
+  const filteredTasks = tasks.filter((task) => {
+    const matchesSearch =
+      task.title
+        .toLowerCase()
+        .includes(search.toLowerCase());
+
+    const matchesPriority =
+      priorityFilter === "all"
+        ? true
+        : task.priority === priorityFilter;
+
+    return (
+      matchesSearch && matchesPriority
+    );
+  });
 
   useEffect(() => {
     const storedTasks =
@@ -196,13 +217,49 @@ export default function Home() {
           />
         </div>
 
+        <div className="flex flex-col md:flex-row gap-4 mb-8">
+          <input
+            type="text"
+            placeholder="Buscar tarefa..."
+            value={search}
+            onChange={(e) =>
+              setSearch(e.target.value)
+            }
+            className="bg-slate-800 border border-slate-700 rounded-lg px-4 py-3 w-full md:w-80 outline-none"
+          />
+
+          <select
+            value={priorityFilter}
+            onChange={(e) =>
+              setPriorityFilter(e.target.value)
+            }
+            className="bg-slate-800 border border-slate-700 rounded-lg px-4 py-3 outline-none"
+          >
+            <option value="all">
+              Todas prioridades
+            </option>
+
+            <option value="high">
+              Alta
+            </option>
+
+            <option value="medium">
+              Média
+            </option>
+
+            <option value="low">
+              Baixa
+            </option>
+          </select>
+        </div>
+
         <DndContext onDragEnd={handleDragEnd}>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <BoardColumn
               id="todo"
               title="A Fazer"
             >
-              {tasks
+              {filteredTasks
                 .filter(
                   (task) => task.status === "todo"
                 )
@@ -227,7 +284,7 @@ export default function Home() {
               id="progress"
               title="Em Progresso"
             >
-              {tasks
+              {filteredTasks
                 .filter(
                   (task) =>
                     task.status === "progress"
@@ -253,7 +310,7 @@ export default function Home() {
               id="done"
               title="Concluído"
             >
-              {tasks
+              {filteredTasks
                 .filter(
                   (task) => task.status === "done"
                 )
