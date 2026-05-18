@@ -13,11 +13,17 @@ import { StatsCard } from "../components/dashboard/StatsCard";
 
 type TaskStatus = "todo" | "progress" | "done";
 
+type TaskPriority =
+  | "low"
+  | "medium"
+  | "high";
+
 type Task = {
   id: number;
   title: string;
   description: string;
   status: TaskStatus;
+  priority: TaskPriority;
 };
 
 const initialTasks: Task[] = [
@@ -26,6 +32,7 @@ const initialTasks: Task[] = [
     title: "Criar tela login",
     description: "Desenvolver autenticação",
     status: "todo",
+    priority: "high",
   },
 
   {
@@ -33,6 +40,7 @@ const initialTasks: Task[] = [
     title: "Criar dashboard",
     description: "Estruturar layout",
     status: "progress",
+    priority: "medium",
   },
 
   {
@@ -40,6 +48,7 @@ const initialTasks: Task[] = [
     title: "Criar projeto",
     description: "Next.js configurado",
     status: "done",
+    priority: "low",
   },
 ];
 
@@ -93,13 +102,15 @@ export default function Home() {
 
   function handleAddTask(
     title: string,
-    description: string
+    description: string,
+    priority: TaskPriority
   ) {
     const newTask: Task = {
       id: Date.now(),
       title,
       description,
       status: "todo",
+      priority,
     };
 
     setTasks((prev) => [...prev, newTask]);
@@ -107,7 +118,8 @@ export default function Home() {
 
   function handleEditTask(
     title: string,
-    description: string
+    description: string,
+    priority: TaskPriority
   ) {
     if (!editingTask) return;
 
@@ -118,6 +130,7 @@ export default function Home() {
               ...task,
               title,
               description,
+              priority,
             }
           : task
       )
@@ -199,6 +212,7 @@ export default function Home() {
                     id={task.id}
                     title={task.title}
                     description={task.description}
+                    priority={task.priority}
                     onEdit={() =>
                       setEditingTask(task)
                     }
@@ -224,6 +238,7 @@ export default function Home() {
                     id={task.id}
                     title={task.title}
                     description={task.description}
+                    priority={task.priority}
                     onEdit={() =>
                       setEditingTask(task)
                     }
@@ -248,6 +263,7 @@ export default function Home() {
                     id={task.id}
                     title={task.title}
                     description={task.description}
+                    priority={task.priority}
                     onEdit={() =>
                       setEditingTask(task)
                     }
@@ -274,6 +290,9 @@ export default function Home() {
         initialTitle={editingTask?.title}
         initialDescription={
           editingTask?.description
+        }
+        initialPriority={
+          editingTask?.priority
         }
         isEditing
       />
