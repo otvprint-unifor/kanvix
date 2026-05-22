@@ -1,38 +1,35 @@
+"use client";
+
+import {
+  LayoutDashboard,
+} from "lucide-react";
+
 export function Sidebar() {
   return (
-    <aside
-      aria-label="Menu lateral"
-      className="w-64 bg-slate-900 border-r border-slate-800 p-6"
-    >
-      <h1 className="text-2xl font-bold text-blue-400 mb-10">
-        Kanvix
-      </h1>
+    <aside className="w-72 min-h-screen bg-slate-950 border-r border-slate-800 flex flex-col">
+      <div className="p-8 border-b border-slate-800">
+        <h1 className="text-5xl font-bold text-blue-500">
+          Kanvix
+        </h1>
 
-      <nav
-        aria-label="Navegação principal"
-        className="space-y-4"
-      >
+        <p className="text-slate-400 mt-3 text-lg">
+          Gestão inteligente de tarefas
+        </p>
+      </div>
+
+      <nav className="flex-1 p-5">
         <button
-          aria-label="Ir para dashboard"
-          className="w-full text-left px-4 py-3 rounded-lg bg-slate-800 hover:bg-slate-700 transition focus:outline-none focus:ring-2 focus:ring-blue-400"
+          className="w-full flex items-center gap-4 px-5 py-4 rounded-2xl bg-slate-800 text-white text-lg"
         >
+          <LayoutDashboard size={24} />
+
           Dashboard
         </button>
-
-        <button
-          aria-label="Ir para minhas tarefas"
-          className="w-full text-left px-4 py-3 rounded-lg hover:bg-slate-800 transition focus:outline-none focus:ring-2 focus:ring-blue-400"
-        >
-          Minhas tarefas
-        </button>
-
-        <button
-          aria-label="Abrir configurações"
-          className="w-full text-left px-4 py-3 rounded-lg hover:bg-slate-800 transition focus:outline-none focus:ring-2 focus:ring-blue-400"
-        >
-          Configurações
-        </button>
       </nav>
+
+      <div className="p-6 text-center text-sm text-slate-500">
+        © 2026 Kanvix
+      </div>
     </aside>
   );
 }

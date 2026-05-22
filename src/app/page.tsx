@@ -2,7 +2,10 @@
 
 import { useEffect, useState } from "react";
 
-import { DndContext, DragEndEvent } from "@dnd-kit/core";
+import {
+  DndContext,
+  DragEndEvent,
+} from "@dnd-kit/core";
 
 import { Sidebar } from "../components/layout/Sidebar";
 import { Topbar } from "../components/layout/Topbar";
@@ -13,12 +16,19 @@ import { StatsCard } from "../components/dashboard/StatsCard";
 
 import { Toaster, toast } from "sonner";
 
-type TaskStatus = "todo" | "progress" | "done";
+type TaskStatus =
+  | "todo"
+  | "progress"
+  | "done";
 
 type TaskPriority =
   | "low"
   | "medium"
   | "high";
+
+type Theme =
+  | "light"
+  | "dark";
 
 type Task = {
   id: number;
@@ -27,39 +37,66 @@ type Task = {
   status: TaskStatus;
   priority: TaskPriority;
   assignee: string;
+  dueDate: string;
 };
+
+const members = [
+  {
+    id: 1,
+    name: "João",
+  },
+  {
+    id: 2,
+    name: "Maria",
+  },
+  {
+    id: 3,
+    name: "Carlos",
+  },
+];
 
 const initialTasks: Task[] = [
   {
     id: 1,
     title: "Criar tela login",
-    description: "Desenvolver autenticação",
+    description:
+      "Desenvolver autenticação",
     status: "todo",
     priority: "high",
     assignee: "João",
+    dueDate: "2026-05-30",
   },
 
   {
     id: 2,
     title: "Criar dashboard",
-    description: "Estruturar layout",
+    description:
+      "Estruturar layout",
     status: "progress",
     priority: "medium",
     assignee: "Maria",
+    dueDate: "2026-05-28",
   },
 
   {
     id: 3,
     title: "Criar projeto",
-    description: "Next.js configurado",
+    description:
+      "Next.js configurado",
     status: "done",
     priority: "low",
     assignee: "Carlos",
+    dueDate: "2026-05-25",
   },
 ];
 
 export default function Home() {
-  const [tasks, setTasks] = useState<Task[]>([]);
+  const [tasks, setTasks] = useState<
+    Task[]
+  >([]);
+
+  const [theme, setTheme] =
+    useState<Theme>("dark");
 
   const [isModalOpen, setIsModalOpen] =
     useState(false);
@@ -67,10 +104,21 @@ export default function Home() {
   const [editingTask, setEditingTask] =
     useState<Task | null>(null);
 
-  const [search, setSearch] = useState("");
+  const [taskToDelete, setTaskToDelete] =
+    useState<number | null>(null);
 
-  const [priorityFilter, setPriorityFilter] =
+  const [search, setSearch] =
+    useState("");
+
+  const [
+    priorityFilter,
+    setPriorityFilter,
+  ] = useState("all");
+
+  const [memberFilter, setMemberFilter] =
     useState("all");
+
+  const isDark = theme === "dark";
 
   const totalTasks = tasks.length;
 
@@ -79,7 +127,8 @@ export default function Home() {
   ).length;
 
   const progressTasks = tasks.filter(
-    (task) => task.status === "progress"
+    (task) =>
+      task.status === "progress"
   ).length;
 
   const doneTasks = tasks.filter(
@@ -89,29 +138,54 @@ export default function Home() {
   const productivity =
     totalTasks > 0
       ? Math.round(
-          (doneTasks / totalTasks) * 100
+          (doneTasks / totalTasks) *
+            100
         )
       : 0;
 
-  const filteredTasks = tasks.filter((task) => {
-    const matchesSearch =
-      task.title
-        .toLowerCase()
-        .includes(search.toLowerCase());
+  const filteredTasks = tasks.filter(
+    (task) => {
+      const matchesSearch =
+        task.title
+          .toLowerCase()
+          .includes(
+            search.toLowerCase()
+          );
 
-    const matchesPriority =
-      priorityFilter === "all"
-        ? true
-        : task.priority === priorityFilter;
+      const matchesPriority =
+        priorityFilter === "all"
+          ? true
+          : task.priority ===
+            priorityFilter;
 
-    return (
-      matchesSearch && matchesPriority
-    );
-  });
+      const matchesMember =
+        memberFilter === "all"
+          ? true
+          : task.assignee ===
+            memberFilter;
+
+      return (
+        matchesSearch &&
+        matchesPriority &&
+        matchesMember
+      );
+    }
+  );
 
   useEffect(() => {
     const storedTasks =
-      localStorage.getItem("kanvix-tasks");
+      localStorage.getItem(
+        "kanvix-tasks"
+      );
+
+    const savedTheme =
+      localStorage.getItem(
+        "kanvix-theme"
+      ) as Theme | null;
+
+    if (savedTheme) {
+      setTheme(savedTheme);
+    }
 
     if (storedTasks) {
       setTasks(JSON.parse(storedTasks));
@@ -127,68 +201,100 @@ export default function Home() {
     );
   }, [tasks]);
 
-function handleAddTask(
-  title: string,
-  description: string,
-  priority: TaskPriority,
-  assignee: string
-) {
-  const newTask: Task = {
-    id: Date.now(),
-    title,
-    description,
-    status: "todo",
-    priority,
-    assignee,
-  };
+  useEffect(() => {
+    localStorage.setItem(
+      "kanvix-theme",
+      theme
+    );
+  }, [theme]);
 
-  setTasks((prev) => [...prev, newTask]);
+  function toggleTheme() {
+    setTheme((prev) =>
+      prev === "dark"
+        ? "light"
+        : "dark"
+    );
+  }
 
-  toast.success("Tarefa criada com sucesso!");
-}
+  function handleAddTask(
+    title: string,
+    description: string,
+    priority: TaskPriority,
+    assignee: string,
+    dueDate: string
+  ) {
+    const newTask: Task = {
+      id: Date.now(),
+      title,
+      description,
+      status: "todo",
+      priority,
+      assignee,
+      dueDate,
+    };
 
-function handleEditTask(
-  title: string,
-  description: string,
-  priority: TaskPriority,
-  assignee: string
-) {
-  if (!editingTask) return;
+    setTasks((prev) => [
+      ...prev,
+      newTask,
+    ]);
 
-  setTasks((prev) =>
-    prev.map((task) =>
-      task.id === editingTask.id
-        ? {
-            ...task,
-            title,
-            description,
-            priority,
-            assignee,
-          }
-        : task
-    )
-  );
+    toast.success(
+      "Tarefa criada com sucesso!"
+    );
+  }
 
-  toast.success("Tarefa atualizada");
+  function handleEditTask(
+    title: string,
+    description: string,
+    priority: TaskPriority,
+    assignee: string,
+    dueDate: string
+  ) {
+    if (!editingTask) return;
 
-  setEditingTask(null);
-}
+    setTasks((prev) =>
+      prev.map((task) =>
+        task.id === editingTask.id
+          ? {
+              ...task,
+              title,
+              description,
+              priority,
+              assignee,
+              dueDate,
+            }
+          : task
+      )
+    );
+
+    toast.success(
+      "Tarefa atualizada"
+    );
+
+    setEditingTask(null);
+  }
 
   function deleteTask(taskId: number) {
-  setTasks((prev) =>
-    prev.filter((task) => task.id !== taskId)
-  );
+    setTasks((prev) =>
+      prev.filter(
+        (task) => task.id !== taskId
+      )
+    );
 
-  toast.error("Tarefa removida!");
-}
+    toast.error("Tarefa removida!");
+  }
 
-  function handleDragEnd(event: DragEndEvent) {
+  function handleDragEnd(
+    event: DragEndEvent
+  ) {
     const { active, over } = event;
 
     if (!over) return;
 
     const taskId = Number(active.id);
-    const newStatus = over.id as TaskStatus;
+
+    const newStatus =
+      over.id as TaskStatus;
 
     setTasks((prev) =>
       prev.map((task) =>
@@ -205,33 +311,60 @@ function handleEditTask(
   }
 
   return (
-    <main className="flex h-screen bg-slate-950 text-white">
+    <main
+      className={`flex h-screen transition-colors duration-300 ${
+        isDark
+          ? "bg-slate-950 text-white"
+          : "bg-slate-100 text-slate-900"
+      }`}
+    >
       <Sidebar />
 
       <section className="flex-1 p-8 overflow-auto">
-        <Topbar
-          onAddTask={() => setIsModalOpen(true)}
-        />
+        <div className="flex items-center justify-between mb-6">
+          <Topbar
+            onAddTask={() =>
+              setIsModalOpen(true)
+            }
+          />
+
+          <button
+            onClick={toggleTheme}
+            className={`px-5 py-3 rounded-xl font-medium transition-all border ${
+              isDark
+                ? "bg-slate-800 border-slate-700 hover:bg-slate-700 text-white"
+                : "bg-white border-slate-300 hover:bg-slate-200 text-slate-900 shadow-sm"
+            }`}
+          >
+            {isDark
+              ? "☀️ Light Mode"
+              : "🌙 Dark Mode"}
+          </button>
+        </div>
 
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
           <StatsCard
             title="Total de tarefas"
             value={totalTasks}
+            isDark={isDark}
           />
 
           <StatsCard
             title="A Fazer"
             value={todoTasks}
+            isDark={isDark}
           />
 
           <StatsCard
             title="Em progresso"
             value={progressTasks}
+            isDark={isDark}
           />
 
           <StatsCard
             title="Produtividade"
             value={`${productivity}%`}
+            isDark={isDark}
           />
         </div>
 
@@ -241,17 +374,29 @@ function handleEditTask(
             placeholder="Buscar tarefa..."
             value={search}
             onChange={(e) =>
-              setSearch(e.target.value)
+              setSearch(
+                e.target.value
+              )
             }
-            className="bg-slate-800 border border-slate-700 rounded-lg px-4 py-3 w-full md:w-80 outline-none"
+            className={`rounded-xl px-4 py-3 w-full md:w-80 outline-none transition-all ${
+              isDark
+                ? "bg-slate-800 border border-slate-700 text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500"
+                : "bg-white border border-slate-300 text-slate-900 placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500 shadow-sm"
+            }`}
           />
 
           <select
             value={priorityFilter}
             onChange={(e) =>
-              setPriorityFilter(e.target.value)
+              setPriorityFilter(
+                e.target.value
+              )
             }
-            className="bg-slate-800 border border-slate-700 rounded-lg px-4 py-3 outline-none"
+            className={`rounded-xl px-4 py-3 outline-none transition-all ${
+              isDark
+                ? "bg-slate-800 border border-slate-700 text-white"
+                : "bg-white border border-slate-300 text-slate-900 shadow-sm"
+            }`}
           >
             <option value="all">
               Todas prioridades
@@ -269,32 +414,78 @@ function handleEditTask(
               Baixa
             </option>
           </select>
+
+          <select
+            value={memberFilter}
+            onChange={(e) =>
+              setMemberFilter(
+                e.target.value
+              )
+            }
+            className={`rounded-xl px-4 py-3 outline-none transition-all ${
+              isDark
+                ? "bg-slate-800 border border-slate-700 text-white"
+                : "bg-white border border-slate-300 text-slate-900 shadow-sm"
+            }`}
+          >
+            <option value="all">
+              Todos membros
+            </option>
+
+            {members.map((member) => (
+              <option
+                key={member.id}
+                value={member.name}
+              >
+                {member.name}
+              </option>
+            ))}
+          </select>
         </div>
 
-        <DndContext onDragEnd={handleDragEnd}>
+        <DndContext
+          onDragEnd={handleDragEnd}
+        >
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <BoardColumn
               id="todo"
               title="A Fazer"
+              isDark={isDark}
             >
               {filteredTasks
                 .filter(
-                  (task) => task.status === "todo"
+                  (task) =>
+                    task.status ===
+                    "todo"
                 )
                 .map((task) => (
                   <TaskCard
                     key={task.id}
                     id={task.id}
                     title={task.title}
-                    description={task.description}
-                    priority={task.priority}
-                    assignee={task.assignee}
+                    description={
+                      task.description
+                    }
+                    priority={
+                      task.priority
+                    }
+                    assignee={
+                      task.assignee
+                    }
+                    dueDate={
+                      task.dueDate
+                    }
                     onEdit={() =>
-                      setEditingTask(task)
+                      setEditingTask(
+                        task
+                      )
                     }
                     onDelete={() =>
-                      deleteTask(task.id)
+                      setTaskToDelete(
+                        task.id
+                      )
                     }
+                    isDark={isDark}
                   />
                 ))}
             </BoardColumn>
@@ -302,26 +493,42 @@ function handleEditTask(
             <BoardColumn
               id="progress"
               title="Em Progresso"
+              isDark={isDark}
             >
               {filteredTasks
                 .filter(
                   (task) =>
-                    task.status === "progress"
+                    task.status ===
+                    "progress"
                 )
                 .map((task) => (
                   <TaskCard
                     key={task.id}
                     id={task.id}
                     title={task.title}
-                    description={task.description}
-                    priority={task.priority}
-                    assignee={task.assignee}
+                    description={
+                      task.description
+                    }
+                    priority={
+                      task.priority
+                    }
+                    assignee={
+                      task.assignee
+                    }
+                    dueDate={
+                      task.dueDate
+                    }
                     onEdit={() =>
-                      setEditingTask(task)
+                      setEditingTask(
+                        task
+                      )
                     }
                     onDelete={() =>
-                      deleteTask(task.id)
+                      setTaskToDelete(
+                        task.id
+                      )
                     }
+                    isDark={isDark}
                   />
                 ))}
             </BoardColumn>
@@ -329,25 +536,42 @@ function handleEditTask(
             <BoardColumn
               id="done"
               title="Concluído"
+              isDark={isDark}
             >
               {filteredTasks
                 .filter(
-                  (task) => task.status === "done"
+                  (task) =>
+                    task.status ===
+                    "done"
                 )
                 .map((task) => (
                   <TaskCard
                     key={task.id}
                     id={task.id}
                     title={task.title}
-                    description={task.description}
-                    priority={task.priority}
-                    assignee={task.assignee}
+                    description={
+                      task.description
+                    }
+                    priority={
+                      task.priority
+                    }
+                    assignee={
+                      task.assignee
+                    }
+                    dueDate={
+                      task.dueDate
+                    }
                     onEdit={() =>
-                      setEditingTask(task)
+                      setEditingTask(
+                        task
+                      )
                     }
                     onDelete={() =>
-                      deleteTask(task.id)
+                      setTaskToDelete(
+                        task.id
+                      )
                     }
+                    isDark={isDark}
                   />
                 ))}
             </BoardColumn>
@@ -357,26 +581,106 @@ function handleEditTask(
 
       <AddTaskModal
         isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
+        onClose={() =>
+          setIsModalOpen(false)
+        }
         onAdd={handleAddTask}
+        isDark={isDark}
       />
 
       <AddTaskModal
         isOpen={!!editingTask}
-        onClose={() => setEditingTask(null)}
+        onClose={() =>
+          setEditingTask(null)
+        }
         onAdd={handleEditTask}
-        initialTitle={editingTask?.title}
+        initialTitle={
+          editingTask?.title
+        }
         initialDescription={
           editingTask?.description
         }
         initialPriority={
           editingTask?.priority
         }
-        initialAssignee={editingTask?.assignee}
+        initialAssignee={
+          editingTask?.assignee
+        }
+        initialDueDate={
+          editingTask?.dueDate
+        }
         isEditing
+        isDark={isDark}
       />
 
-      <Toaster richColors position="top-right" />
+      {taskToDelete !== null && (
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
+          <div
+            className={`rounded-2xl p-6 w-full max-w-sm border shadow-2xl ${
+              isDark
+                ? "bg-slate-900 border-slate-700"
+                : "bg-white border-slate-200"
+            }`}
+          >
+            <h2 className="text-xl font-bold mb-3">
+              Excluir tarefa
+            </h2>
+
+            <p
+              className={`mb-6 ${
+                isDark
+                  ? "text-slate-300"
+                  : "text-slate-600"
+              }`}
+            >
+              Tem certeza que deseja
+              excluir essa tarefa?
+            </p>
+
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() =>
+                  setTaskToDelete(
+                    null
+                  )
+                }
+                className={`px-4 py-3 rounded-lg transition ${
+                  isDark
+                    ? "bg-slate-700 hover:bg-slate-600 text-white"
+                    : "bg-slate-200 hover:bg-slate-300 text-slate-900"
+                }`}
+              >
+                Cancelar
+              </button>
+
+              <button
+                onClick={() => {
+                  if (
+                    taskToDelete !==
+                    null
+                  ) {
+                    deleteTask(
+                      taskToDelete
+                    );
+                  }
+
+                  setTaskToDelete(
+                    null
+                  );
+                }}
+                className="px-4 py-3 rounded-lg bg-red-600 hover:bg-red-500 text-white transition"
+              >
+                Excluir
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <Toaster
+        richColors
+        position="top-right"
+      />
     </main>
   );
 }
