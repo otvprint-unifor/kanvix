@@ -8,11 +8,6 @@ import {
 
 import { useDraggable } from "@dnd-kit/core";
 
-type TaskPriority =
-  | "low"
-  | "medium"
-  | "high";
-
 type TaskCardProps = {
   id: number;
   title: string;
