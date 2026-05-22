@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useMemo, useState } from "react";
 
 import {
   DndContext,
@@ -76,12 +76,34 @@ const initialTasks: Task[] = [
 ];
 
 export default function Home() {
-  const [tasks, setTasks] = useState<
-    Task[]
-  >([]);
+  const [tasks, setTasks] = useState<Task[]>(() => {
+    if (typeof window !== "undefined") {
+      const storedTasks =
+        localStorage.getItem(
+          "kanvix-tasks"
+        );
+
+      if (storedTasks) {
+        return JSON.parse(storedTasks);
+      }
+    }
+
+    return initialTasks;
+  });
 
   const [theme, setTheme] =
-    useState<Theme>("dark");
+    useState<Theme>(() => {
+      if (typeof window !== "undefined") {
+        const savedTheme =
+          localStorage.getItem(
+            "kanvix-theme"
+          ) as Theme | null;
+
+        return savedTheme || "dark";
+      }
+
+      return "dark";
+    });
 
   const [isModalOpen, setIsModalOpen] =
     useState(false);
@@ -125,8 +147,8 @@ export default function Home() {
         )
       : 0;
 
-  const filteredTasks = tasks.filter(
-    (task) => {
+  const filteredTasks = useMemo(() => {
+    return tasks.filter((task) => {
       const matchesSearch =
         task.title
           .toLowerCase()
@@ -144,50 +166,20 @@ export default function Home() {
         matchesSearch &&
         matchesPriority
       );
-    }
-  );
-
-  useEffect(() => {
-    const storedTasks =
-      localStorage.getItem(
-        "kanvix-tasks"
-      );
-
-    const savedTheme =
-      localStorage.getItem(
-        "kanvix-theme"
-      ) as Theme | null;
-
-    if (savedTheme) {
-      setTheme(savedTheme);
-    }
-
-    if (storedTasks) {
-      setTasks(JSON.parse(storedTasks));
-    } else {
-      setTasks(initialTasks);
-    }
-  }, []);
-
-  useEffect(() => {
-    localStorage.setItem(
-      "kanvix-tasks",
-      JSON.stringify(tasks)
-    );
-  }, [tasks]);
-
-  useEffect(() => {
-    localStorage.setItem(
-      "kanvix-theme",
-      theme
-    );
-  }, [theme]);
+    });
+  }, [tasks, search, priorityFilter]);
 
   function toggleTheme() {
-    setTheme((prev) =>
-      prev === "dark"
+    const newTheme =
+      theme === "dark"
         ? "light"
-        : "dark"
+        : "dark";
+
+    setTheme(newTheme);
+
+    localStorage.setItem(
+      "kanvix-theme",
+      newTheme
     );
   }
 
@@ -208,10 +200,17 @@ export default function Home() {
       dueDate,
     };
 
-    setTasks((prev) => [
-      ...prev,
+    const updatedTasks = [
+      ...tasks,
       newTask,
-    ]);
+    ];
+
+    setTasks(updatedTasks);
+
+    localStorage.setItem(
+      "kanvix-tasks",
+      JSON.stringify(updatedTasks)
+    );
 
     toast.success(
       "Tarefa criada com sucesso!"
@@ -227,8 +226,8 @@ export default function Home() {
   ) {
     if (!editingTask) return;
 
-    setTasks((prev) =>
-      prev.map((task) =>
+    const updatedTasks = tasks.map(
+      (task) =>
         task.id === editingTask.id
           ? {
               ...task,
@@ -239,7 +238,13 @@ export default function Home() {
               dueDate,
             }
           : task
-      )
+    );
+
+    setTasks(updatedTasks);
+
+    localStorage.setItem(
+      "kanvix-tasks",
+      JSON.stringify(updatedTasks)
     );
 
     toast.success(
@@ -250,10 +255,15 @@ export default function Home() {
   }
 
   function deleteTask(taskId: number) {
-    setTasks((prev) =>
-      prev.filter(
-        (task) => task.id !== taskId
-      )
+    const updatedTasks = tasks.filter(
+      (task) => task.id !== taskId
+    );
+
+    setTasks(updatedTasks);
+
+    localStorage.setItem(
+      "kanvix-tasks",
+      JSON.stringify(updatedTasks)
     );
 
     toast.error("Tarefa removida!");
@@ -271,15 +281,21 @@ export default function Home() {
     const newStatus =
       over.id as TaskStatus;
 
-    setTasks((prev) =>
-      prev.map((task) =>
+    const updatedTasks = tasks.map(
+      (task) =>
         task.id === taskId
           ? {
               ...task,
               status: newStatus,
             }
           : task
-      )
+    );
+
+    setTasks(updatedTasks);
+
+    localStorage.setItem(
+      "kanvix-tasks",
+      JSON.stringify(updatedTasks)
     );
 
     toast.success("Tarefa movida");

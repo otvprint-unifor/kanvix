@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 type TaskPriority =
   | "low"
@@ -21,6 +21,7 @@ type AddTaskModalProps = {
   ) => void;
 
   initialTitle?: string;
+
   initialDescription?: string;
 
   initialPriority?: TaskPriority;
@@ -40,6 +41,7 @@ export function AddTaskModal({
   onAdd,
 
   initialTitle = "",
+
   initialDescription = "",
 
   initialPriority = "medium",
@@ -53,37 +55,23 @@ export function AddTaskModal({
   isDark,
 }: AddTaskModalProps) {
   const [title, setTitle] =
-    useState("");
+    useState(initialTitle);
 
-  const [description, setDescription] =
-    useState("");
+  const [
+    description,
+    setDescription,
+  ] = useState(initialDescription);
 
   const [priority, setPriority] =
-    useState<TaskPriority>("medium");
+    useState<TaskPriority>(
+      initialPriority
+    );
 
   const [assignee, setAssignee] =
-    useState("");
+    useState(initialAssignee);
 
   const [dueDate, setDueDate] =
-    useState("");
-
-  useEffect(() => {
-    setTitle(initialTitle);
-
-    setDescription(initialDescription);
-
-    setPriority(initialPriority);
-
-    setAssignee(initialAssignee);
-
-    setDueDate(initialDueDate);
-  }, [
-    initialTitle,
-    initialDescription,
-    initialPriority,
-    initialAssignee,
-    initialDueDate,
-  ]);
+    useState(initialDueDate);
 
   if (!isOpen) return null;
 
@@ -99,9 +87,13 @@ export function AddTaskModal({
     );
 
     setTitle("");
+
     setDescription("");
+
     setPriority("medium");
+
     setAssignee("");
+
     setDueDate("");
 
     onClose();
