@@ -40,21 +40,6 @@ type Task = {
   dueDate: string;
 };
 
-const members = [
-  {
-    id: 1,
-    name: "João",
-  },
-  {
-    id: 2,
-    name: "Maria",
-  },
-  {
-    id: 3,
-    name: "Carlos",
-  },
-];
-
 const initialTasks: Task[] = [
   {
     id: 1,
@@ -115,9 +100,6 @@ export default function Home() {
     setPriorityFilter,
   ] = useState("all");
 
-  const [memberFilter, setMemberFilter] =
-    useState("all");
-
   const isDark = theme === "dark";
 
   const totalTasks = tasks.length;
@@ -158,16 +140,9 @@ export default function Home() {
           : task.priority ===
             priorityFilter;
 
-      const matchesMember =
-        memberFilter === "all"
-          ? true
-          : task.assignee ===
-            memberFilter;
-
       return (
         matchesSearch &&
-        matchesPriority &&
-        matchesMember
+        matchesPriority
       );
     }
   );
@@ -330,10 +305,11 @@ export default function Home() {
 
           <button
             onClick={toggleTheme}
+            aria-label="Alternar tema"
             className={`px-5 py-3 rounded-xl font-medium transition-all border ${
               isDark
                 ? "bg-slate-800 border-slate-700 hover:bg-slate-700 text-white"
-                : "bg-white border-slate-300 hover:bg-slate-200 text-slate-900 shadow-sm"
+                : "bg-white border border-slate-300 hover:bg-slate-200 text-slate-900 shadow-sm"
             }`}
           >
             {isDark
@@ -372,6 +348,7 @@ export default function Home() {
           <input
             type="text"
             placeholder="Buscar tarefa..."
+            aria-label="Buscar tarefa"
             value={search}
             onChange={(e) =>
               setSearch(
@@ -381,11 +358,12 @@ export default function Home() {
             className={`rounded-xl px-4 py-3 w-full md:w-80 outline-none transition-all ${
               isDark
                 ? "bg-slate-800 border border-slate-700 text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500"
-                : "bg-white border border-slate-300 text-slate-900 placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500 shadow-sm"
+                : "bg-white border border-slate-300 text-slate-900 placeholder:text-slate-500 focus:ring-2 focus:ring-blue-500 shadow-sm"
             }`}
           />
 
           <select
+            aria-label="Filtrar prioridade"
             value={priorityFilter}
             onChange={(e) =>
               setPriorityFilter(
@@ -413,33 +391,6 @@ export default function Home() {
             <option value="low">
               Baixa
             </option>
-          </select>
-
-          <select
-            value={memberFilter}
-            onChange={(e) =>
-              setMemberFilter(
-                e.target.value
-              )
-            }
-            className={`rounded-xl px-4 py-3 outline-none transition-all ${
-              isDark
-                ? "bg-slate-800 border border-slate-700 text-white"
-                : "bg-white border border-slate-300 text-slate-900 shadow-sm"
-            }`}
-          >
-            <option value="all">
-              Todos membros
-            </option>
-
-            {members.map((member) => (
-              <option
-                key={member.id}
-                value={member.name}
-              >
-                {member.name}
-              </option>
-            ))}
           </select>
         </div>
 
