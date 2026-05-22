@@ -1,6 +1,7 @@
 "use client";
 
-import { ReactNode } from "react";
+import React, { ReactNode } from "react";
+
 import { useDroppable } from "@dnd-kit/core";
 
 type BoardColumnProps = {
@@ -19,17 +20,24 @@ export function BoardColumn({
   });
 
   return (
-    <div
+    <section
       ref={setNodeRef}
-      className="bg-slate-900 rounded-xl p-4 min-h-[500px]"
+      aria-label={`Coluna ${title}`}
+      className="bg-slate-900 rounded-xl p-4 min-h-[500px] border border-slate-800"
     >
-      <h3 className="font-semibold mb-4 text-lg">
-        {title}
-      </h3>
+      <div className="flex items-center justify-between mb-4">
+        <h3 className="font-semibold text-lg">
+          {title}
+        </h3>
+
+        <span className="text-sm bg-slate-800 px-2 py-1 rounded-md text-slate-300">
+          {React.Children.count(children)}
+        </span>
+      </div>
 
       <div className="space-y-4">
         {children}
       </div>
-    </div>
+    </section>
   );
 }

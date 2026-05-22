@@ -1,5 +1,7 @@
 "use client";
 
+import { useState } from "react";
+
 import { useDraggable } from "@dnd-kit/core";
 
 type TaskPriority =
@@ -13,6 +15,8 @@ type TaskCardProps = {
   description: string;
   priority: TaskPriority;
 
+  assignee?: string;
+
   onDelete?: () => void;
   onEdit?: () => void;
 };
@@ -22,9 +26,13 @@ export function TaskCard({
   title,
   description,
   priority,
+  assignee,
   onDelete,
   onEdit,
 }: TaskCardProps) {
+  const [menuOpen, setMenuOpen] =
+    useState(false);
+
   const {
     attributes,
     listeners,
@@ -65,52 +73,100 @@ export function TaskCard({
   }
 
   return (
-    <div
+    <article
       ref={setNodeRef}
       style={style}
-      className="bg-slate-800 p-4 rounded-lg"
+      className="bg-slate-800 p-4 rounded-xl border border-slate-700 hover:border-slate-600 transition"
     >
-      <div
-        {...listeners}
-        {...attributes}
-        className="cursor-grab active:cursor-grabbing"
-      >
-        <div className="flex items-center justify-between gap-2">
-          <h4 className="font-medium">
-            {title}
-          </h4>
+      <div className="flex items-start justify-between gap-3">
+        <div
+          {...listeners}
+          {...attributes}
+          className="flex-1 cursor-grab active:cursor-grabbing"
+        >
+          <div className="flex items-center gap-2 flex-wrap">
+            <h4 className="font-semibold text-white">
+              {title}
+            </h4>
 
-          <span
-            className={`text-xs px-2 py-1 rounded-full ${getPriorityColor()}`}
-          >
-            {getPriorityLabel()}
-          </span>
+            <span
+              className={`text-xs px-2 py-1 rounded-full ${getPriorityColor()}`}
+            >
+              {getPriorityLabel()}
+            </span>
+          </div>
+
+          <p className="text-sm text-slate-300 mt-3">
+            {description}
+          </p>
+
+          {assignee && (
+            <div className="flex items-center gap-2 mt-4">
+              <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-sm font-bold">
+                {assignee.charAt(0)}
+              </div>
+
+              <div>
+                <p className="text-xs text-slate-400">
+                  Responsável
+                </p>
+
+                <p className="text-sm text-white">
+                  {assignee}
+                </p>
+              </div>
+            </div>
+          )}
         </div>
 
-        <p className="text-sm text-slate-300 mt-2">
-          {description}
-        </p>
-      </div>
-
-      <div className="flex gap-2 mt-4">
-        {onEdit && (
+        <div className="relative">
           <button
-            onClick={onEdit}
-            className="text-sm bg-yellow-600 hover:bg-yellow-500 px-3 py-2 rounded-lg"
+            onClick={() =>
+              setMenuOpen(!menuOpen)
+            }
+            aria-label="Abrir menu da tarefa"
+            className="w-9 h-9 rounded-lg hover:bg-slate-700 flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
-            Editar
+            ⋮
           </button>
-        )}
 
-        {onDelete && (
-          <button
-            onClick={onDelete}
-            className="text-sm bg-red-600 hover:bg-red-500 px-3 py-2 rounded-lg"
-          >
-            Excluir
-          </button>
-        )}
+          {menuOpen && (
+            <div className="absolute right-0 mt-2 w-40 bg-slate-900 border border-slate-700 rounded-xl shadow-lg overflow-hidden z-50">
+              {onEdit && (
+                <button
+                  onClick={() => {
+                    onEdit();
+                    setMenuOpen(false);
+                  }}
+                  className="w-full text-left px-4 py-3 hover:bg-slate-800 text-sm transition"
+                >
+                  Editar
+                </button>
+              )}
+
+              {onDelete && (
+                <button
+                  onClick={() => {
+                    const confirmed =
+                      confirm(
+                        "Deseja realmente excluir esta tarefa?"
+                      );
+
+                    if (confirmed) {
+                      onDelete();
+                    }
+
+                    setMenuOpen(false);
+                  }}
+                  className="w-full text-left px-4 py-3 hover:bg-slate-800 text-sm text-red-400 transition"
+                >
+                  Excluir
+                </button>
+              )}
+            </div>
+          )}
+        </div>
       </div>
-    </div>
+    </article>
   );
 }

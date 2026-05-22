@@ -26,6 +26,7 @@ type Task = {
   description: string;
   status: TaskStatus;
   priority: TaskPriority;
+  assignee: string;
 };
 
 const initialTasks: Task[] = [
@@ -35,6 +36,7 @@ const initialTasks: Task[] = [
     description: "Desenvolver autenticação",
     status: "todo",
     priority: "high",
+    assignee: "João",
   },
 
   {
@@ -43,6 +45,7 @@ const initialTasks: Task[] = [
     description: "Estruturar layout",
     status: "progress",
     priority: "medium",
+    assignee: "Maria",
   },
 
   {
@@ -51,6 +54,7 @@ const initialTasks: Task[] = [
     description: "Next.js configurado",
     status: "done",
     priority: "low",
+    assignee: "Carlos",
   },
 ];
 
@@ -123,10 +127,11 @@ export default function Home() {
     );
   }, [tasks]);
 
-  function handleAddTask(
+function handleAddTask(
   title: string,
   description: string,
-  priority: TaskPriority
+  priority: TaskPriority,
+  assignee: string
 ) {
   const newTask: Task = {
     id: Date.now(),
@@ -134,6 +139,7 @@ export default function Home() {
     description,
     status: "todo",
     priority,
+    assignee,
   };
 
   setTasks((prev) => [...prev, newTask]);
@@ -141,10 +147,11 @@ export default function Home() {
   toast.success("Tarefa criada com sucesso!");
 }
 
-  function handleEditTask(
+function handleEditTask(
   title: string,
   description: string,
-  priority: TaskPriority
+  priority: TaskPriority,
+  assignee: string
 ) {
   if (!editingTask) return;
 
@@ -156,12 +163,13 @@ export default function Home() {
             title,
             description,
             priority,
+            assignee,
           }
         : task
     )
   );
 
-  toast.success("Tarefa atualizada!");
+  toast.success("Tarefa atualizada");
 
   setEditingTask(null);
 }
@@ -280,6 +288,7 @@ export default function Home() {
                     title={task.title}
                     description={task.description}
                     priority={task.priority}
+                    assignee={task.assignee}
                     onEdit={() =>
                       setEditingTask(task)
                     }
@@ -306,6 +315,7 @@ export default function Home() {
                     title={task.title}
                     description={task.description}
                     priority={task.priority}
+                    assignee={task.assignee}
                     onEdit={() =>
                       setEditingTask(task)
                     }
@@ -331,6 +341,7 @@ export default function Home() {
                     title={task.title}
                     description={task.description}
                     priority={task.priority}
+                    assignee={task.assignee}
                     onEdit={() =>
                       setEditingTask(task)
                     }
@@ -361,6 +372,7 @@ export default function Home() {
         initialPriority={
           editingTask?.priority
         }
+        initialAssignee={editingTask?.assignee}
         isEditing
       />
 

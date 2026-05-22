@@ -9,16 +9,22 @@ type TaskPriority =
 
 type AddTaskModalProps = {
   isOpen: boolean;
+
   onClose: () => void;
+
   onAdd: (
     title: string,
     description: string,
-    priority: TaskPriority
+    priority: TaskPriority,
+    assignee: string
   ) => void;
 
   initialTitle?: string;
   initialDescription?: string;
+
   initialPriority?: TaskPriority;
+
+  initialAssignee?: string;
 
   isEditing?: boolean;
 };
@@ -27,18 +33,26 @@ export function AddTaskModal({
   isOpen,
   onClose,
   onAdd,
+
   initialTitle = "",
   initialDescription = "",
+
   initialPriority = "medium",
+
+  initialAssignee = "",
+
   isEditing = false,
 }: AddTaskModalProps) {
   const [title, setTitle] = useState("");
-  
+
   const [description, setDescription] =
     useState("");
 
   const [priority, setPriority] =
     useState<TaskPriority>("medium");
+
+  const [assignee, setAssignee] =
+    useState("");
 
   useEffect(() => {
     setTitle(initialTitle);
@@ -46,10 +60,13 @@ export function AddTaskModal({
     setDescription(initialDescription);
 
     setPriority(initialPriority);
+
+    setAssignee(initialAssignee);
   }, [
     initialTitle,
     initialDescription,
     initialPriority,
+    initialAssignee,
   ]);
 
   if (!isOpen) return null;
@@ -57,91 +74,75 @@ export function AddTaskModal({
   function handleSubmit() {
     if (!title.trim()) return;
 
-    onAdd(title, description, priority);
+    onAdd(
+      title,
+      description,
+      priority,
+      assignee
+    );
 
     setTitle("");
     setDescription("");
     setPriority("medium");
+    setAssignee("");
 
     onClose();
   }
 
   return (
-    <div
-      className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="modal-title"
-    >
-      <div className="bg-slate-900 p-6 rounded-xl w-full max-w-md border border-slate-700">
-        
-        <h2
-          id="modal-title"
-          className="text-2xl font-bold mb-6"
-        >
+    <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
+      <div className="bg-slate-900 w-full max-w-md rounded-2xl border border-slate-700 p-6">
+        <h2 className="text-2xl font-bold mb-6">
           {isEditing
             ? "Editar tarefa"
             : "Nova tarefa"}
         </h2>
 
         <div className="space-y-4">
-
           <div>
-            <label
-              htmlFor="title"
-              className="block text-sm text-slate-200 mb-2"
-            >
-              Título da tarefa
+            <label className="block text-sm mb-2 text-slate-300">
+              Título
             </label>
 
             <input
-              id="title"
               type="text"
               placeholder="Digite o título"
               value={title}
               onChange={(e) =>
                 setTitle(e.target.value)
               }
-              className="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-3 outline-none text-white focus:ring-2 focus:ring-blue-400"
+              className="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
 
           <div>
-            <label
-              htmlFor="description"
-              className="block text-sm text-slate-200 mb-2"
-            >
-              Descrição da tarefa
+            <label className="block text-sm mb-2 text-slate-300">
+              Descrição
             </label>
 
             <textarea
-              id="description"
               placeholder="Digite a descrição"
               value={description}
               onChange={(e) =>
                 setDescription(e.target.value)
               }
-              className="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-3 outline-none h-32 resize-none text-white focus:ring-2 focus:ring-blue-400"
+              className="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-3 h-28 resize-none outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
 
           <div>
-            <label
-              htmlFor="priority"
-              className="block text-sm text-slate-200 mb-2"
-            >
+            <label className="block text-sm mb-2 text-slate-300">
               Prioridade
             </label>
 
             <select
-              id="priority"
               value={priority}
               onChange={(e) =>
                 setPriority(
                   e.target.value as TaskPriority
                 )
               }
-              className="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-3 outline-none text-white focus:ring-2 focus:ring-blue-400"
+              className="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500"
             >
               <option value="high">
                 Alta
@@ -157,29 +158,38 @@ export function AddTaskModal({
             </select>
           </div>
 
+          <div>
+            <label className="block text-sm mb-2 text-slate-300">
+              Responsável
+            </label>
+
+            <input
+              type="text"
+              placeholder="Nome do responsável"
+              value={assignee}
+              onChange={(e) =>
+                setAssignee(e.target.value)
+              }
+              className="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+
           <div className="flex justify-end gap-3 pt-4">
-            
             <button
               onClick={onClose}
-              className="px-4 py-2 rounded-lg bg-slate-700 hover:bg-slate-600 focus:outline-none focus:ring-2 focus:ring-slate-400"
+              className="px-4 py-3 rounded-lg bg-slate-700 hover:bg-slate-600 focus:outline-none focus:ring-2 focus:ring-slate-400"
             >
               Cancelar
             </button>
 
             <button
               onClick={handleSubmit}
-              aria-label={
-                isEditing
-                  ? "Salvar tarefa"
-                  : "Criar nova tarefa"
-              }
-              className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-400"
+              className="px-4 py-3 rounded-lg bg-blue-600 hover:bg-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-400"
             >
               {isEditing
                 ? "Salvar"
                 : "Criar tarefa"}
             </button>
-
           </div>
         </div>
       </div>
