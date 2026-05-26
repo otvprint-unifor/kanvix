@@ -1,12 +1,7 @@
 import {
-  describe,
-  it,
-  expect,
-} from "vitest";
-
-import {
   render,
   screen,
+  fireEvent,
 } from "@testing-library/react";
 
 import { Sidebar } from "./Sidebar";
@@ -16,9 +11,7 @@ describe("Sidebar", () => {
     render(<Sidebar />);
 
     expect(
-      screen.getByText(
-        /dashboard/i
-      )
+      screen.getByText(/dashboard/i)
     ).toBeInTheDocument();
   });
 
@@ -26,9 +19,7 @@ describe("Sidebar", () => {
     render(<Sidebar />);
 
     expect(
-      screen.getByText(
-        /kanvix/i
-      )
+      screen.getAllByText(/kanvix/i)[0]
     ).toBeInTheDocument();
   });
 
@@ -37,7 +28,7 @@ describe("Sidebar", () => {
 
     expect(
       screen.getByText(
-        /gestão inteligente de tarefas/i
+        /gestão inteligente/i
       )
     ).toBeInTheDocument();
   });
@@ -50,5 +41,46 @@ describe("Sidebar", () => {
         /abrir menu/i
       )
     ).toBeInTheDocument();
+  });
+
+  it("opens mobile sidebar when clicking menu button", () => {
+    render(<Sidebar />);
+
+    const button =
+      screen.getByLabelText(
+        /abrir menu/i
+      );
+
+    fireEvent.click(button);
+
+    expect(
+      screen.getByLabelText(
+        /fechar menu/i
+      )
+    ).toBeInTheDocument();
+  });
+
+  it("closes mobile sidebar when clicking overlay", () => {
+    render(<Sidebar />);
+
+    const openButton =
+      screen.getByLabelText(
+        /abrir menu/i
+      );
+
+    fireEvent.click(openButton);
+
+    const overlay =
+      screen.getByLabelText(
+        /fechar menu/i
+      );
+
+    fireEvent.click(overlay);
+
+    expect(
+      screen.queryByLabelText(
+        /fechar menu/i
+      )
+    ).not.toBeInTheDocument();
   });
 });

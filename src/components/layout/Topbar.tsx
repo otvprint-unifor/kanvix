@@ -2,7 +2,6 @@
 
 import {
   Plus,
-  Search,
 } from "lucide-react";
 
 type TopbarProps = {

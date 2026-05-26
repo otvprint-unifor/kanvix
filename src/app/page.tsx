@@ -2,6 +2,7 @@
 
 import {
   useEffect,
+  useLayoutEffect,
   useMemo,
   useState,
 } from "react";
@@ -95,7 +96,7 @@ export default function Home() {
   const [taskToDelete, setTaskToDelete] =
     useState<number | null>(null);
 
-    useEffect(() => {
+    useLayoutEffect(() => {
   const storedTasks =
     localStorage.getItem(
       "kanvix-tasks"
@@ -108,7 +109,7 @@ export default function Home() {
   }
 }, []);
 
-useEffect(() => {
+    useLayoutEffect(() => {
   const savedTheme =
     localStorage.getItem(
       "kanvix-theme"
