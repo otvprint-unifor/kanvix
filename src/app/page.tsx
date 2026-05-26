@@ -1,8 +1,6 @@
 "use client";
 
 import {
-  useEffect,
-  useLayoutEffect,
   useMemo,
   useState,
 } from "react";
@@ -81,11 +79,48 @@ const initialTasks: Task[] = [
 ];
 
 export default function Home() {
-  const [tasks, setTasks] =
-  useState<Task[]>(initialTasks);
+  const mounted =
+  typeof window !== "undefined";
 
-  const [theme, setTheme] =
-  useState<Theme>("dark");
+  const [tasks, setTasks] =
+  useState<Task[]>(() => {
+    if (
+      typeof window !==
+      "undefined"
+    ) {
+      const storedTasks =
+        localStorage.getItem(
+          "kanvix-tasks"
+        );
+
+      if (storedTasks) {
+        return JSON.parse(
+          storedTasks
+        );
+      }
+    }
+
+    return initialTasks;
+  });
+
+const [theme, setTheme] =
+  useState<Theme>(() => {
+    if (
+      typeof window !==
+      "undefined"
+    ) {
+      const savedTheme =
+        localStorage.getItem(
+          "kanvix-theme"
+        ) as Theme | null;
+
+      if (savedTheme) {
+        return savedTheme;
+      }
+    }
+
+    return "dark";
+  });
 
   const [isModalOpen, setIsModalOpen] =
     useState(false);
@@ -96,30 +131,6 @@ export default function Home() {
   const [taskToDelete, setTaskToDelete] =
     useState<number | null>(null);
 
-    useLayoutEffect(() => {
-  const storedTasks =
-    localStorage.getItem(
-      "kanvix-tasks"
-    );
-
-  if (storedTasks) {
-    setTasks(
-      JSON.parse(storedTasks)
-    );
-  }
-}, []);
-
-    useLayoutEffect(() => {
-  const savedTheme =
-    localStorage.getItem(
-      "kanvix-theme"
-    ) as Theme | null;
-
-  if (savedTheme) {
-    setTheme(savedTheme);
-  }
-}, []);
-
   const [search, setSearch] =
     useState("");
 
@@ -127,6 +138,8 @@ export default function Home() {
     priorityFilter,
     setPriorityFilter,
   ] = useState("all");
+
+  
 
   const isDark = theme === "dark";
 
@@ -305,6 +318,10 @@ export default function Home() {
     );
 
     toast.success("Tarefa movida");
+  }
+
+  if (!mounted) {
+    return null;
   }
 
   return (
