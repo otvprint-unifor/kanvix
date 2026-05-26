@@ -15,8 +15,9 @@ export function Sidebar() {
     <>
       {/* Botão Mobile */}
       <button
+        type="button"
         onClick={() =>
-          setIsOpen(!isOpen)
+          setIsOpen((prev) => !prev)
         }
         className="fixed top-4 left-4 z-50 flex md:hidden items-center justify-center w-12 h-12 rounded-xl bg-slate-900 border border-slate-700 text-white shadow-lg"
         aria-label="Abrir menu"
@@ -26,7 +27,9 @@ export function Sidebar() {
 
       {/* Overlay Mobile */}
       {isOpen && (
-        <div
+        <button
+          type="button"
+          aria-label="Fechar menu"
           onClick={() =>
             setIsOpen(false)
           }
@@ -66,6 +69,7 @@ export function Sidebar() {
 
         <nav className="flex-1 p-4 md:p-5">
           <button
+            type="button"
             className="w-full flex items-center gap-4 px-5 py-4 rounded-2xl bg-slate-800 hover:bg-slate-700 transition text-white text-base md:text-lg"
           >
             <LayoutDashboard

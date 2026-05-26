@@ -1,6 +1,10 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import {
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 
 import {
   DndContext,
@@ -76,34 +80,11 @@ const initialTasks: Task[] = [
 ];
 
 export default function Home() {
-  const [tasks, setTasks] = useState<Task[]>(() => {
-    if (typeof window !== "undefined") {
-      const storedTasks =
-        localStorage.getItem(
-          "kanvix-tasks"
-        );
-
-      if (storedTasks) {
-        return JSON.parse(storedTasks);
-      }
-    }
-
-    return initialTasks;
-  });
+  const [tasks, setTasks] =
+  useState<Task[]>(initialTasks);
 
   const [theme, setTheme] =
-    useState<Theme>(() => {
-      if (typeof window !== "undefined") {
-        const savedTheme =
-          localStorage.getItem(
-            "kanvix-theme"
-          ) as Theme | null;
-
-        return savedTheme || "dark";
-      }
-
-      return "dark";
-    });
+  useState<Theme>("dark");
 
   const [isModalOpen, setIsModalOpen] =
     useState(false);
@@ -113,6 +94,30 @@ export default function Home() {
 
   const [taskToDelete, setTaskToDelete] =
     useState<number | null>(null);
+
+    useEffect(() => {
+  const storedTasks =
+    localStorage.getItem(
+      "kanvix-tasks"
+    );
+
+  if (storedTasks) {
+    setTasks(
+      JSON.parse(storedTasks)
+    );
+  }
+}, []);
+
+useEffect(() => {
+  const savedTheme =
+    localStorage.getItem(
+      "kanvix-theme"
+    ) as Theme | null;
+
+  if (savedTheme) {
+    setTheme(savedTheme);
+  }
+}, []);
 
   const [search, setSearch] =
     useState("");
