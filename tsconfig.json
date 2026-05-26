@@ -2,8 +2,6 @@
   "compilerOptions": {
     "types": ["vitest/globals"],
 
-    "ignoreDeprecations": "6.0",
-
     "target": "ES2017",
 
     "lib": [
