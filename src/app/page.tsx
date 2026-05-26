@@ -303,7 +303,7 @@ export default function Home() {
 
   return (
     <main
-      className={`flex h-screen transition-colors duration-300 ${
+      className={`flex min-h-screen transition-colors duration-300 ${
         isDark
           ? "bg-slate-950 text-white"
           : "bg-slate-100 text-slate-900"
@@ -311,8 +311,8 @@ export default function Home() {
     >
       <Sidebar />
 
-      <section className="flex-1 p-8 overflow-auto">
-        <div className="flex items-center justify-between mb-6">
+      <section className="flex-1 p-4 md:p-8 overflow-auto">
+        <div className="flex flex-col md:flex-row gap-4 md:items-center md:justify-between mb-6">
           <Topbar
             onAddTask={() =>
               setIsModalOpen(true)
